@@ -58,20 +58,18 @@ class DDPG(object):
 
 
 	def train(self, replay_buffer, iterations, batch_size, discount, tau):
-
 		for it in range(iterations):
-
 			# Sample replay buffer
 			x, y, u, r, d = replay_buffer.sample(batch_size)
 			state = torch.FloatTensor(x).to(device)
 			action = torch.FloatTensor(u).to(device)
 			next_state = torch.FloatTensor(y).to(device)
-			done = torch.FloatTensor(1 - d).to(device)
+			done = torch.FloatTensor(d).to(device)
 			reward = torch.FloatTensor(r).to(device)
 
 			# Compute the target Q value
 			target_Q = self.critic_target(next_state, self.actor_target(next_state))
-			target_Q = reward + (done * discount * target_Q).detach()
+			target_Q = reward + (discount * target_Q * (1 - done)).detach()
 
 			# Get current Q estimate
 			current_Q = self.critic(state, action)
