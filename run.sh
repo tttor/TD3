@@ -1,3 +1,4 @@
 #!/bin/bash
 ./main.py \
---max_timesteps 5000
+--seed 14347 \
+--max_timesteps 2500
