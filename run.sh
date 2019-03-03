@@ -1,3 +1,3 @@
 #!/bin/bash
 ./main.py \
---max_timesteps 10000
+--max_timesteps 5000
