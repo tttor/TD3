@@ -57,7 +57,7 @@ class DDPG(object):
 		return self.actor(state).cpu().data.numpy().flatten()
 
 
-	def train(self, replay_buffer, iterations, batch_size=100, discount=0.99, tau=0.005):
+	def train(self, replay_buffer, iterations, batch_size, discount, tau):
 
 		for it in range(iterations):
 
