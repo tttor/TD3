@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
 		# Perform action
 		new_obs, reward, done, _ = env.step(action)
-		done_bool = 0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
+		done_bool = float(done) #0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
 		episode_reward += reward
 
 		# Store data in replay buffer
