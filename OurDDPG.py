@@ -14,36 +14,28 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Actor(nn.Module):
 	def __init__(self, state_dim, action_dim, max_action):
 		super(Actor, self).__init__()
-
 		self.l1 = nn.Linear(state_dim, 400)
 		self.l2 = nn.Linear(400, 300)
 		self.l3 = nn.Linear(300, action_dim)
-		
-		self.max_action = max_action
 
-	
 	def forward(self, x):
 		x = F.relu(self.l1(x))
 		x = F.relu(self.l2(x))
-		x = self.max_action * torch.tanh(self.l3(x)) 
-		return x 
-
+		x = torch.tanh(self.l3(x))
+		return x
 
 class Critic(nn.Module):
 	def __init__(self, state_dim, action_dim):
 		super(Critic, self).__init__()
-
 		self.l1 = nn.Linear(state_dim + action_dim, 400)
 		self.l2 = nn.Linear(400, 300)
 		self.l3 = nn.Linear(300, 1)
-
 
 	def forward(self, x, u):
 		x = F.relu(self.l1(torch.cat([x, u], 1)))
 		x = F.relu(self.l2(x))
 		x = self.l3(x)
-		return x 
-
+		return x
 
 class DDPG(object):
 	def __init__(self, state_dim, action_dim, max_action):
@@ -55,7 +47,7 @@ class DDPG(object):
 		self.critic = Critic(state_dim, action_dim).to(device)
 		self.critic_target = Critic(state_dim, action_dim).to(device)
 		self.critic_target.load_state_dict(self.critic.state_dict())
-		self.critic_optimizer = torch.optim.Adam(self.critic.parameters())		
+		self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
 
 	def select_action(self, state):
@@ -67,7 +59,7 @@ class DDPG(object):
 
 		for it in range(iterations):
 
-			# Sample replay buffer 
+			# Sample replay buffer
 			x, y, u, r, d = replay_buffer.sample(batch_size)
 			state = torch.FloatTensor(x).to(device)
 			action = torch.FloatTensor(u).to(device)
@@ -92,8 +84,8 @@ class DDPG(object):
 
 			# Compute actor loss
 			actor_loss = -self.critic(state, self.actor(state)).mean()
-			
-			# Optimize the actor 
+
+			# Optimize the actor
 			self.actor_optimizer.zero_grad()
 			actor_loss.backward()
 			self.actor_optimizer.step()
