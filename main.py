@@ -11,23 +11,23 @@ import OurDDPG
 import DDPG
 
 
-# Runs policy for X episodes and returns average reward
-def evaluate_policy(policy, eval_episodes=10):
-	avg_reward = 0.
-	for _ in range(eval_episodes):
-		obs = env.reset()
-		done = False
-		while not done:
-			action = policy.select_action(np.array(obs))
-			obs, reward, done, _ = env.step(action)
-			avg_reward += reward
+# # Runs policy for X episodes and returns average reward
+# def evaluate_policy(policy, eval_episodes=10):
+# 	avg_reward = 0.
+# 	for _ in range(eval_episodes):
+# 		obs = env.reset()
+# 		done = False
+# 		while not done:
+# 			action = policy.select_action(np.array(obs))
+# 			obs, reward, done, _ = env.step(action)
+# 			avg_reward += reward
 
-	avg_reward /= eval_episodes
+# 	avg_reward /= eval_episodes
 
-	print("---------------------------------------")
-	print("Evaluation over {} episodes: {}".format(eval_episodes, avg_reward))
-	print("---------------------------------------")
-	return avg_reward
+# 	print("---------------------------------------")
+# 	print("Evaluation over {} episodes: {}".format(eval_episodes, avg_reward))
+# 	print("---------------------------------------")
+# 	return avg_reward
 
 
 if __name__ == "__main__":
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 	replay_buffer = utils.ReplayBuffer()
 
 	# Evaluate untrained policy
-	evaluations = [evaluate_policy(policy)]
+	# evaluations = [evaluate_policy(policy)]
 
 	total_timesteps = 0
 	timesteps_since_eval = 0
@@ -93,17 +93,18 @@ if __name__ == "__main__":
 			if total_timesteps != 0:
 				print("Total T: {} Episode Num: {} Episode T: {} Reward: {}".format(total_timesteps, episode_num, episode_timesteps, episode_reward))
 				if args.policy_name == "TD3":
-					policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau, args.policy_noise, args.noise_clip, args.policy_freq)
+					raise NotImplementedError
+					# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau, args.policy_noise, args.noise_clip, args.policy_freq)
 				else:
 					policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 
-			# Evaluate episode
-			if timesteps_since_eval >= args.eval_freq:
-				timesteps_since_eval %= args.eval_freq
-				evaluations.append(evaluate_policy(policy))
+			# # Evaluate episode
+			# if timesteps_since_eval >= args.eval_freq:
+			# 	timesteps_since_eval %= args.eval_freq
+			# 	evaluations.append(evaluate_policy(policy))
 
-				if args.save_models: policy.save(file_name, directory="./pytorch_models")
-				np.save("./results/%s" % (file_name), evaluations)
+			# 	if args.save_models: policy.save(file_name, directory="./pytorch_models")
+			# 	np.save("./results/%s" % (file_name), evaluations)
 
 			# Reset environment
 			obs = env.reset()
@@ -114,7 +115,8 @@ if __name__ == "__main__":
 
 		# Select action randomly or according to policy
 		if total_timesteps < args.start_timesteps:
-			action = env.action_space.sample()
+			raise NotImplementedError
+			# action = env.action_space.sample()
 		else:
 			action = policy.select_action(np.array(obs))
 			if args.expl_noise != 0:
@@ -134,7 +136,7 @@ if __name__ == "__main__":
 		total_timesteps += 1
 		timesteps_since_eval += 1
 
-	# Final evaluation
-	evaluations.append(evaluate_policy(policy))
-	if args.save_models: policy.save("%s" % (file_name), directory="./pytorch_models")
-	np.save("./results/%s" % (file_name), evaluations)
+	# # Final evaluation
+	# evaluations.append(evaluate_policy(policy))
+	# if args.save_models: policy.save("%s" % (file_name), directory="./pytorch_models")
+	# np.save("./results/%s" % (file_name), evaluations)
