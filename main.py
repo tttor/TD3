@@ -4,6 +4,7 @@ import torch
 import gym
 import argparse
 import os
+import datetime
 import utils
 import OurDDPG
 
@@ -41,7 +42,8 @@ if __name__ == "__main__":
 	while total_timesteps < args.max_timesteps:
 		if done:
 			if total_timesteps != 0:
-				print("Total T: {} Episode Num: {} Episode T: {} Return: {}".format(total_timesteps, episode_num, episode_timesteps, episode_reward))
+				print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {}".format(
+					total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
 				# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 				policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
 
