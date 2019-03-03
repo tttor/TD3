@@ -18,10 +18,13 @@ class Actor(nn.Module):
 		self.l3 = nn.Linear(300, action_dim)
 
 	def forward(self, x):
-		x = F.relu(self.l1(x))
-		x = F.relu(self.l2(x))
+		# x = F.relu(self.l1(x))
+		# x = F.relu(self.l2(x))
+		x = F.tanh(self.l1(x))
+		x = F.tanh(self.l2(x))
 		x = torch.tanh(self.l3(x))
 		return x
+
 
 class Critic(nn.Module):
 	def __init__(self, state_dim, action_dim):
