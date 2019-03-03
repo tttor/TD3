@@ -42,7 +42,8 @@ if __name__ == "__main__":
 		if done:
 			if total_timesteps != 0:
 				print("Total T: {} Episode Num: {} Episode T: {} Return: {}".format(total_timesteps, episode_num, episode_timesteps, episode_reward))
-				policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+				# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+				policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
 
 			# Reset environment
 			obs = env.reset()
