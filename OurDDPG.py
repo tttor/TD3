@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-import utils
+import utils, net
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -41,16 +41,19 @@ class Critic(nn.Module):
 
 class DDPG(object):
 	def __init__(self, state_dim, action_dim, max_action):
-		self.actor = Actor(state_dim, action_dim, max_action).to(device)
-		self.actor_target = Actor(state_dim, action_dim, max_action).to(device)
+		# self.actor = Actor(state_dim, action_dim, max_action).to(device)
+		# self.actor_target = Actor(state_dim, action_dim, max_action).to(device)
+		self.actor = net.DeterministicPolicyNetwork(state_dim, [400, 300], action_dim).to(device)
+		self.actor_target = net.DeterministicPolicyNetwork(state_dim, [400, 300], action_dim).to(device)
 		self.actor_target.load_state_dict(self.actor.state_dict())
 		self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=3e-4)
 
-		self.critic = Critic(state_dim, action_dim).to(device)
-		self.critic_target = Critic(state_dim, action_dim).to(device)
+		# self.critic = Critic(state_dim, action_dim).to(device)
+		# self.critic_target = Critic(state_dim, action_dim).to(device)
+		self.critic = net.ActionValueNetwork(state_dim+action_dim, [400, 300]).to(device)
+		self.critic_target = net.ActionValueNetwork(state_dim+action_dim, [400, 300]).to(device)
 		self.critic_target.load_state_dict(self.critic.state_dict())
 		self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
-
 
 	def select_action(self, state):
 		state = torch.FloatTensor(state.reshape(1, -1)).to(device)
