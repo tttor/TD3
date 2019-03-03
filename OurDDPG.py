@@ -71,10 +71,8 @@ class DDPG(object):
 			target_Q = self.critic_target(next_state, self.actor_target(next_state))
 			target_Q = reward + (discount * target_Q * (1 - done)).detach()
 
-			# Get current Q estimate
-			current_Q = self.critic(state, action)
-
 			# Compute critic loss
+			current_Q = self.critic(state, action)
 			critic_loss = F.mse_loss(current_Q, target_Q)
 
 			# Optimize the critic
