@@ -28,10 +28,9 @@ if __name__ == "__main__":
 
 	state_dim = env.observation_space.shape[0]
 	action_dim = env.action_space.shape[0]
-	max_action = float(env.action_space.high[0])
 
 	# Initialize policy
-	policy = OurDDPG.DDPG(state_dim, action_dim, max_action)
+	policy = OurDDPG.DDPG(state_dim, action_dim, None)
 	replay_buffer = utils.ReplayBuffer()
 
 	total_timesteps = 0
