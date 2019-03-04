@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
 	# Set seeds
 	env.seed(args.seed)
+	env.action_space.np_random.seed(args.seed)
 	torch.manual_seed(args.seed)
 	np.random.seed(args.seed)
 
@@ -55,14 +56,18 @@ if __name__ == "__main__":
 
 		# Select action randomly or according to policy
 		action = policy.select_action(np.array(obs))
-		if args.expl_noise != 0:
-			action_noise = np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])
-			action = (action + action_noise).clip(env.action_space.low, env.action_space.high)
+		# action = env.action_space.sample()
+		action_noise = np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])
+		action = (action + action_noise).clip(env.action_space.low, env.action_space.high)
+		# print(action)
+		# print(action_noise)
+		# exit()
 
 		# Perform action
 		new_obs, reward, done, _ = env.step(action)
 		done_bool = float(done) #0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
 		episode_reward += reward
+		# print(reward)
 
 		# Store data in replay buffer
 		replay_buffer.add((obs, new_obs, action, reward, done_bool))
