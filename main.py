@@ -35,25 +35,17 @@ if __name__ == "__main__":
 	replay_buffer = utils.ReplayBuffer()
 
 	total_timesteps = 0
-	timesteps_since_eval = 0
 	episode_num = 0
 	done = True
 
+	# Reset environment
+	obs = env.reset()
+	done = False
+	episode_reward = 0
+	episode_timesteps = 0
+	episode_num += 1
+
 	while total_timesteps < args.max_timesteps:
-		if done:
-			if total_timesteps != 0:
-				print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {}".format(
-					total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
-				# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
-				policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
-
-			# Reset environment
-			obs = env.reset()
-			done = False
-			episode_reward = 0
-			episode_timesteps = 0
-			episode_num += 1
-
 		# Select action randomly or according to policy
 		action = policy.select_action(np.array(obs))
 		# action = env.action_space.sample()
@@ -65,6 +57,9 @@ if __name__ == "__main__":
 
 		# Perform action
 		new_obs, reward, done, _ = env.step(action)
+		episode_timesteps += 1
+		total_timesteps += 1
+
 		done_bool = float(done) #0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
 		episode_reward += reward
 		# print(reward)
@@ -72,8 +67,17 @@ if __name__ == "__main__":
 		# Store data in replay buffer
 		replay_buffer.add((obs, new_obs, action, reward, done_bool))
 
-		obs = new_obs
+		if done:
+			print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {}".format(
+				total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
+			# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+			policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
 
-		episode_timesteps += 1
-		total_timesteps += 1
-		timesteps_since_eval += 1
+			# Reset environment
+			obs = env.reset()
+			done = False
+			episode_reward = 0
+			episode_timesteps = 0
+			episode_num += 1
+		else:
+			obs = new_obs
