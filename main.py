@@ -56,7 +56,8 @@ if __name__ == "__main__":
 		# Select action randomly or according to policy
 		action = policy.select_action(np.array(obs))
 		if args.expl_noise != 0:
-			action = (action + np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])).clip(env.action_space.low, env.action_space.high)
+			action_noise = np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])
+			action = (action + action_noise).clip(env.action_space.low, env.action_space.high)
 
 		# Perform action
 		new_obs, reward, done, _ = env.step(action)
