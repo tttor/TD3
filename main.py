@@ -20,6 +20,9 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	env = gym.make(args.env_name)
+	state_dim = env.observation_space.shape[0]
+	action_dim = env.action_space.shape[0]
+	env_spec_timestep_limit = 50; assert args.env_name=='Reacher-v2'
 
 	# Set seeds
 	env.seed(args.seed)
@@ -27,58 +30,48 @@ if __name__ == "__main__":
 	torch.manual_seed(args.seed)
 	np.random.seed(args.seed)
 
-	state_dim = env.observation_space.shape[0]
-	action_dim = env.action_space.shape[0]
-
 	# Initialize policy
 	policy = OurDDPG.DDPG(state_dim, action_dim, None)
 	replay_buffer = utils.ReplayBuffer()
-
 	total_timesteps = 0
 	episode_num = 0
-	done = True
-
-	# Reset environment
-	obs = env.reset()
-	done = False
 	episode_reward = 0
 	episode_timesteps = 0
-	episode_num += 1
 
 	while total_timesteps < args.max_timesteps:
-		# Select action randomly or according to policy
-		action = policy.select_action(np.array(obs))
-		# action = env.action_space.sample()
-		action_noise = np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])
-		action = (action + action_noise).clip(env.action_space.low, env.action_space.high)
-		# print(action)
-		# print(action_noise)
-		# exit()
+		obs = env.reset()
 
-		# Perform action
-		new_obs, reward, done, _ = env.step(action)
-		episode_timesteps += 1
-		total_timesteps += 1
+		for step_idx in range(env_spec_timestep_limit):
+			# Select action
+			action = policy.select_action(np.array(obs))
+			action_noise = np.random.normal(0, args.expl_noise, size=env.action_space.shape[0])
+			action = (action + action_noise).clip(env.action_space.low, env.action_space.high)
+			# print('observ=', torch.from_numpy(obs).float())
+			# print('action=', action)
+			# print('action_noise=', action_noise)
+			# print('noisy_action=', action)
 
-		done_bool = float(done) #0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
-		episode_reward += reward
-		# print(reward)
+			# Perform action
+			new_obs, reward, done, _ = env.step(action)
+			episode_timesteps += 1
+			total_timesteps += 1
 
-		# Store data in replay buffer
-		replay_buffer.add((obs, new_obs, action, reward, done_bool))
+			done_bool = float(done) #0 if episode_timesteps + 1 == env._max_episode_steps else float(done)
+			episode_reward += reward
+			# print(reward)
 
-		if done:
-			# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
-			policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
+			# Store data in replay buffer
+			replay_buffer.add((obs, new_obs, action, reward, done_bool))
 
-			print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {}".format(
-				total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
+			if done:
+				# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+				policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
+				print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {} =====".format(
+					total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
 
-			# Reset environment
-			obs = env.reset()
-			done = False
-			episode_reward = 0
-			episode_timesteps = 0
-			episode_num += 1
-		else:
-			obs = new_obs
+				episode_reward = 0
+				episode_timesteps = 0
+				episode_num += 1
+				break
+			else:
+				obs = new_obs
