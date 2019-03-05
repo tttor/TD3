@@ -67,7 +67,8 @@ if __name__ == "__main__":
 				# policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
 				policy.train(replay_buffer, 50, args.batch_size, args.discount, args.tau)
 				print("Total T: {} Episode Num: {} Episode T: {} Return: {} @ {} =====".format(
-					total_timesteps, episode_num, episode_timesteps, episode_reward, datetime.datetime.now().strftime("%H:%M:%S")))
+					total_timesteps, episode_num, episode_timesteps, episode_reward,
+					datetime.datetime.now().strftime("%H:%M:%S")))
 
 				episode_reward = 0
 				episode_timesteps = 0

@@ -64,7 +64,6 @@ class DDPG(object):
 		return self.actor(state).cpu().data.numpy().flatten()
 
 	def train(self, replay_buffer, iterations, batch_size, discount, tau):
-		iterations = 50
 		for it in range(iterations):
 			# Sample replay buffer
 			x, y, u, r, d = replay_buffer.sample(batch_size)
@@ -87,7 +86,7 @@ class DDPG(object):
 			# Compute critic loss
 			current_Q = self.critic(state, action)
 			critic_loss = F.mse_loss(current_Q, target_Q)
-			print('critic_loss=', critic_loss)
+			print('cri=', critic_loss)
 
 			# Optimize the critic
 			# self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=3e-4)
@@ -107,7 +106,7 @@ class DDPG(object):
 			# print(state) # same
 			# print(action) # same
 			# print(actionvalue)
-			print('actor_loss=', actor_loss)
+			print('act=', actor_loss)
 
 			# Optimize the actor
 			self.actor_optimizer.zero_grad()
